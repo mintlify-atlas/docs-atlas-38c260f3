@@ -1,0 +1,548 @@
+---
+title: Contributing to ft_printf
+description: Learn about project structure, 42 Norminette standards, and how to contribute improvements
+---
+
+Contributing to ft_printf requires understanding the 42 School coding standards and project architecture. This guide covers everything you need to know to contribute effectively.
+
+## Project structure
+
+The ft_printf library follows a modular structure where each format specifier type is handled by a dedicated file:
+
+```
+~/workspace/source/
+├── Makefile              # Build configuration
+├── ft_printf.h           # Header file with function prototypes
+├── ft_printf.c           # Main printf implementation and parser
+├── ft_printf_str.c       # String (%s) and character (%c) handlers
+├── ft_printf_nbr.c       # Integer (%d, %i) and unsigned (%u) handlers
+├── ft_printf_hex.c       # Hexadecimal (%x, %X) handlers
+└── ft_printf_ptr.c       # Pointer (%p) handler
+```
+
+### File responsibilities
+
+#### `ft_printf.h`
+
+Defines the public API and function prototypes:
+- `ft_printf()` - Main entry point
+- `ft_print_param()` - Format specifier dispatcher
+- Handler functions for each format type
+
+**Location**: `~/workspace/source/ft_printf.h:1`
+
+#### `ft_printf.c`
+
+Core implementation with two main functions:
+- `ft_printf()` - Parses format string and manages variadic arguments (`~/workspace/source/ft_printf.c:37`)
+- `ft_print_param()` - Dispatches to appropriate handler based on format specifier (`~/workspace/source/ft_printf.c:15`)
+
+#### `ft_printf_str.c`
+
+Handles character and string conversions:
+- `ft_printf_putchar()` - Writes a single character
+- `ft_printf_putstr()` - Writes a string
+
+#### `ft_printf_nbr.c`
+
+Handles numeric conversions:
+- `ft_printf_nbr()` - Signed integers (`%d`, `%i`)
+- `ft_printf_unbr()` - Unsigned integers (`%u`)
+
+#### `ft_printf_hex.c`
+
+Handles hexadecimal conversions:
+- `ft_printf_hex()` - Converts unsigned integers to hex (`%x`, `%X`)
+- Takes a `type` parameter to determine uppercase or lowercase output
+
+#### `ft_printf_ptr.c`
+
+Handles pointer address conversion:
+- `ft_printf_ptr()` - Converts pointer addresses to hexadecimal format (`%p`)
+
+## 42 Norminette standards
+
+<Warning>
+All code contributions MUST comply with 42 School's Norminette coding standard. Non-compliant code will not be accepted.
+</Warning>
+
+The Norminette enforces strict coding standards:
+
+### File header
+
+Every file must include the 42 header comment:
+
+```c
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   filename.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: username <email@student.42school.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: YYYY/MM/DD HH:MM:SS by username          #+#    #+#             */
+/*   Updated: YYYY/MM/DD HH:MM:SS by username         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+```
+
+### Function structure
+
+- Maximum 25 lines per function
+- Maximum 5 functions per file (exceptions for helper functions)
+- Each function must be separated by a newline
+
+### Line and indentation rules
+
+- Maximum 80 characters per line
+- Use tabs for indentation (not spaces)
+- No trailing whitespace
+- Files must end with a newline
+
+### Naming conventions
+
+- Function names: `ft_functionname` or `ft_function_name`
+- Variables: lowercase with underscores (snake_case)
+- Macros and constants: UPPERCASE with underscores
+
+### Variable declarations
+
+- Declare all variables at the beginning of the function
+- One variable per line
+- Variables must be initialized before use (when possible)
+
+```c
+int	ft_example(int param)
+{
+	int		result;
+	char	*str;
+
+	result = 0;
+	str = NULL;
+	// Function logic here
+	return (result);
+}
+```
+
+### Forbidden elements
+
+- No `for` loops (use `while` instead)
+- No more than 5 variables per function
+- No variable declarations in the middle of a function
+- No multiple assignments on one line
+- No ternary operators
+
+### Header guards
+
+```c
+#ifndef FT_PRINTF_H
+# define FT_PRINTF_H
+
+// Header content
+
+#endif
+```
+
+## Coding conventions
+
+### Return value conventions
+
+All functions that output characters return the number of characters printed:
+
+```c
+int	ft_printf_putchar(int c)
+{
+	write(1, &c, 1);
+	return (1);
+}
+
+int	ft_printf_putstr(const char *s)
+{
+	int	count;
+
+	count = 0;
+	while (s[count])
+	{
+		write(1, &s[count], 1);
+		count++;
+	}
+	return (count);
+}
+```
+
+### Error handling
+
+Handle NULL pointers and edge cases gracefully:
+
+```c
+int	ft_printf(const char *format, ...)
+{
+	if (format == NULL)
+		return (0);
+	// Continue processing
+}
+```
+
+### Variadic arguments
+
+Use `stdarg.h` for variadic argument handling:
+
+```c
+#include <stdarg.h>
+
+int	ft_print_param(va_list list, const char param)
+{
+	if (param == 'c')
+		return (ft_printf_putchar(va_arg(list, int)));
+	else if (param == 's')
+		return (ft_printf_putstr(va_arg(list, char *)));
+	// Handle other formats
+	return (0);
+}
+```
+
+## How to add new features
+
+<Steps>
+  <Step title="Understand the requirement">
+    Determine what format specifier or feature you want to add. For example, adding `%o` for octal conversion.
+  </Step>
+
+  <Step title="Create a new handler file (if needed)">
+    If the feature requires significant logic, create a new source file:
+    ```bash
+    cd ~/workspace/source
+    touch ft_printf_octal.c
+    ```
+  </Step>
+
+  <Step title="Implement the handler function">
+    Write the handler following Norminette standards:
+    ```c ft_printf_octal.c
+    #include "ft_printf.h"
+
+    int	ft_printf_octal(unsigned int nbr)
+    {
+    	int	count;
+    
+    	count = 0;
+    	// Implementation here
+    	return (count);
+    }
+    ```
+  </Step>
+
+  <Step title="Update the header file">
+    Add the function prototype to `ft_printf.h`:
+    ```c
+    int	ft_printf_octal(unsigned int nbr);
+    ```
+  </Step>
+
+  <Step title="Update the dispatcher">
+    Modify `ft_print_param()` in `ft_printf.c` to handle the new format:
+    ```c
+    else if (param == 'o')
+    	ret += ft_printf_octal(va_arg(list, unsigned int));
+    ```
+  </Step>
+
+  <Step title="Update the Makefile">
+    Add the new source file to the `SRCS` variable:
+    ```makefile
+    SRCS = ft_printf_str.c \
+           ft_printf_nbr.c \
+           ft_printf.c \
+           ft_printf_hex.c \
+           ft_printf_ptr.c \
+           ft_printf_octal.c
+    ```
+  </Step>
+
+  <Step title="Test the new feature">
+    Create comprehensive tests:
+    ```c
+    ft_printf("Octal: %o\n", 64);
+    printf("Octal: %o\n", 64);
+    ```
+  </Step>
+
+  <Step title="Run Norminette">
+    Validate code compliance:
+    ```bash
+    norminette ft_printf_octal.c
+    norminette ft_printf.h
+    norminette ft_printf.c
+    ```
+  </Step>
+
+  <Step title="Build and verify">
+    ```bash
+    make re
+    cc test.c libftprintf.a -o test
+    ./test
+    ```
+  </Step>
+</Steps>
+
+## Running Norminette
+
+Before submitting any code, verify compliance:
+
+### Install Norminette
+
+```bash
+pip3 install --upgrade norminette
+```
+
+### Check a single file
+
+```bash
+norminette ~/workspace/source/ft_printf.c
+```
+
+### Check all files
+
+```bash
+cd ~/workspace/source
+norminette *.c *.h
+```
+
+### Expected output
+
+Compliant code shows:
+```
+ft_printf.c: OK!
+ft_printf.h: OK!
+```
+
+Non-compliant code shows specific errors:
+```
+ft_printf.c: Error!
+Error: SPACE_REPLACE_TAB    (line 42, col 1):
+	Spaces found instead of tabs
+```
+
+## Common Norminette errors and fixes
+
+### Too many lines in function
+
+**Error**: `TOO_MANY_LINES`
+
+**Fix**: Break the function into smaller helper functions
+
+```c
+// Before: 30 lines in one function
+int	ft_process_data(char *data)
+{
+	// 30 lines of code
+}
+
+// After: Split into helper functions
+static int	ft_validate_data(char *data)
+{
+	// Validation logic
+}
+
+int	ft_process_data(char *data)
+{
+	if (!ft_validate_data(data))
+		return (0);
+	// Remaining logic
+}
+```
+
+### Line too long
+
+**Error**: `LINE_TOO_LONG`
+
+**Fix**: Split the line (maximum 80 characters)
+
+```c
+// Before
+ft_printf("This is a very long string that exceeds the 80 character limit\n");
+
+// After
+ft_printf("This is a very long string that exceeds the 80 "
+	"character limit\n");
+```
+
+### Forbidden keyword
+
+**Error**: `FORBIDDEN_CS` (for `for` loops)
+
+**Fix**: Use `while` instead
+
+```c
+// Before
+for (int i = 0; i < 10; i++)
+	process(i);
+
+// After
+int	i;
+
+i = 0;
+while (i < 10)
+{
+	process(i);
+	i++;
+}
+```
+
+### Multiple declarations
+
+**Error**: `MULT_DECL`
+
+**Fix**: One declaration per line
+
+```c
+// Before
+int a, b, c;
+
+// After
+int	a;
+int	b;
+int	c;
+```
+
+### Missing space after keyword
+
+**Error**: `SPACE_AFTER_KW`
+
+**Fix**: Add space after `if`, `while`, `return`
+
+```c
+// Before
+if(condition)
+return(value);
+
+// After
+if (condition)
+return (value);
+```
+
+## Contribution checklist
+
+Before submitting changes, verify:
+
+- [ ] Code passes Norminette validation
+- [ ] All functions are properly documented
+- [ ] No more than 25 lines per function
+- [ ] No more than 5 functions per file
+- [ ] Maximum 80 characters per line
+- [ ] Tabs used for indentation (not spaces)
+- [ ] All variables declared at function start
+- [ ] Proper 42 header in all files
+- [ ] Code compiles without warnings with `-Wall -Werror -Wextra`
+- [ ] New functionality is tested
+- [ ] Return values are consistent with existing functions
+- [ ] Edge cases are handled (NULL, 0, INT_MIN, INT_MAX, etc.)
+- [ ] Makefile updated if new files added
+
+## Development workflow
+
+<Steps>
+  <Step title="Make your changes">
+    Edit source files following all standards
+  </Step>
+
+  <Step title="Run Norminette">
+    ```bash
+    norminette *.c *.h
+    ```
+  </Step>
+
+  <Step title="Clean build">
+    ```bash
+    make fclean && make
+    ```
+  </Step>
+
+  <Step title="Test changes">
+    ```bash
+    cc test.c libftprintf.a -o test
+    ./test
+    ```
+  </Step>
+
+  <Step title="Fix any issues">
+    Address compilation errors and test failures
+  </Step>
+
+  <Step title="Final validation">
+    Run complete test suite and Norminette one more time
+  </Step>
+</Steps>
+
+## Best practices
+
+### Write modular code
+
+Keep functions small and focused on a single task:
+
+```c
+// Good: Small, focused function
+int	ft_isdigit(int c)
+{
+	return (c >= '0' && c <= '9');
+}
+
+// Bad: Function doing too much
+int	ft_process_everything(char *str, int flag, void *data)
+{
+	// 50 lines of mixed logic
+}
+```
+
+### Use meaningful variable names
+
+```c
+// Good
+int	char_count;
+char	*format_str;
+
+// Bad
+int	c;
+char	*s;
+```
+
+### Handle edge cases
+
+```c
+int	ft_printf_putstr(const char *s)
+{
+	if (!s)
+		return (ft_printf_putstr("(null)"));
+	// Continue with valid string
+}
+```
+
+### Optimize for readability
+
+Code clarity is more important than micro-optimizations:
+
+```c
+// Readable
+if (format[i] == '%')
+	ret += ft_print_param(vargs, format[++i]);
+else
+	ret += ft_printf_putchar(format[i]);
+
+// Less readable
+ret += (format[i] == '%') ? ft_print_param(vargs, format[++i]) : ft_printf_putchar(format[i]);
+```
+
+## Getting help
+
+If you have questions about contributing:
+
+1. Review the [42 Norminette documentation](https://github.com/42School/norminette)
+2. Check the [API Reference](/api/ft_printf) for function specifications
+3. Review existing code for examples
+4. Test thoroughly using the [testing guide](/development/testing)
+
+## Next steps
+
+- Review [building instructions](/development/building) to understand the build process
+- Study [testing practices](/development/testing) to validate your changes
+- Explore the [API Reference](/api/ft_printf) for detailed function documentation

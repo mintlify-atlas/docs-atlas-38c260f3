@@ -1,0 +1,153 @@
+---
+title: Installation
+description: Learn how to clone, build, and link the ft_printf library in your projects
+---
+
+This guide walks you through installing ft_printf and integrating it into your C projects.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- A C compiler (gcc or clang)
+- Make build tool
+- Git (for cloning the repository)
+
+## Installation steps
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the ft_printf repository to your local machine:
+
+    ```bash
+    git clone https://github.com/yourusername/ft_printf.git
+    cd ft_printf
+    ```
+  </Step>
+
+  <Step title="Build the library">
+    Compile the library using the provided Makefile:
+
+    ```bash
+    make
+    ```
+
+    This command compiles all source files and creates the static library `libftprintf.a`. You should see output similar to:
+
+    ```
+    compile successfully: ft_printf_str.o
+    compile successfully: ft_printf_nbr.o
+    compile successfully: ft_printf.o
+    compile successfully: ft_printf_hex.o
+    compile successfully: ft_printf_ptr.o
+    Libary compiled
+    ```
+  </Step>
+
+  <Step title="Link the library to your project">
+    To use ft_printf in your project, you need to include the header file and link against the library:
+
+    ```c
+    #include "ft_printf.h"
+
+    int main(void)
+    {
+        ft_printf("Hello, World!\n");
+        return (0);
+    }
+    ```
+
+    Compile your program with:
+
+    ```bash
+    gcc main.c -L. -lftprintf -I. -o my_program
+    ```
+
+    Where:
+    - `-L.` tells the linker to look in the current directory for libraries
+    - `-lftprintf` links against libftprintf.a
+    - `-I.` adds the current directory to the include path
+  </Step>
+</Steps>
+
+## Makefile targets
+
+The ft_printf Makefile provides several useful targets:
+
+| Target | Description |
+|--------|-------------|
+| `make` or `make all` | Compiles the library (default target) |
+| `make clean` | Removes object files (.o) |
+| `make fclean` | Removes object files and the library |
+| `make re` | Performs fclean followed by all (rebuild) |
+
+<Note>
+The library is compiled with the flags `-Wall -Werror -Wextra` to ensure code quality and catch potential issues.
+</Note>
+
+## Project structure
+
+After building, your ft_printf directory will contain:
+
+```
+ft_printf/
+├── ft_printf.h          # Header file with function declarations
+├── ft_printf.c          # Main printf implementation
+├── ft_printf_str.c      # String and character functions
+├── ft_printf_nbr.c      # Number formatting functions
+├── ft_printf_hex.c      # Hexadecimal formatting
+├── ft_printf_ptr.c      # Pointer formatting
+├── Makefile             # Build configuration
+├── libftprintf.a        # Compiled static library (after make)
+└── *.o                  # Object files (after make)
+```
+
+## Troubleshooting
+
+<Accordion title="Error: 'ft_printf.h' file not found">
+  Make sure you've specified the correct include path when compiling. Use the `-I` flag to point to the directory containing ft_printf.h:
+
+  ```bash
+  gcc main.c -I/path/to/ft_printf -L/path/to/ft_printf -lftprintf
+  ```
+</Accordion>
+
+<Accordion title="Linker error: cannot find -lftprintf">
+  This means the linker cannot locate libftprintf.a. Ensure:
+  
+  1. You've run `make` to build the library
+  2. The `-L` flag points to the directory containing libftprintf.a
+  3. The library file is named exactly `libftprintf.a`
+
+  You can verify the library exists:
+  
+  ```bash
+  ls -l libftprintf.a
+  ```
+</Accordion>
+
+<Accordion title="Multiple definition errors during linking">
+  If you're getting multiple definition errors, make sure you're not including .c files directly. Only include the header file:
+
+  ```c
+  #include "ft_printf.h"  // Correct
+  // Don't include .c files
+  ```
+</Accordion>
+
+<Accordion title="Permission denied when running make">
+  Ensure you have the necessary permissions in the directory. On Unix-like systems:
+
+  ```bash
+  chmod +x .
+  make
+  ```
+</Accordion>
+
+<Warning>
+The library must be compiled on the same architecture where you plan to use it. Cross-compilation may require additional flags.
+</Warning>
+
+## Next steps
+
+Now that you have ft_printf installed, proceed to the [Quickstart](/quickstart) guide to write your first program using the library.

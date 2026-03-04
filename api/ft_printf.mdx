@@ -1,0 +1,112 @@
+---
+title: ft_printf
+description: Main function that mimics the standard printf behavior with custom format specifiers
+---
+
+## Overview
+
+`ft_printf` is the main function of this library that replicates the behavior of the standard C `printf` function. It processes a format string and outputs formatted text to standard output, supporting various conversion specifiers.
+
+## Function signature
+
+```c
+int ft_printf(const char *format, ...);
+```
+
+## Parameters
+
+<ParamField path="format" type="const char *" required>
+  The format string containing text and conversion specifiers. A conversion specifier starts with `%` followed by a conversion character.
+</ParamField>
+
+<ParamField path="..." type="variadic">
+  Variable number of arguments corresponding to the conversion specifiers in the format string.
+</ParamField>
+
+## Return value
+
+Returns the total number of characters printed. If the format string is `NULL`, returns `0`.
+
+## Supported conversion specifiers
+
+The function supports the following conversion specifiers:
+
+- `%c` - Print a single character
+- `%s` - Print a string
+- `%d` - Print a signed decimal integer
+- `%i` - Print a signed decimal integer
+- `%u` - Print an unsigned decimal integer
+- `%x` - Print an unsigned hexadecimal integer (lowercase)
+- `%X` - Print an unsigned hexadecimal integer (uppercase)
+- `%p` - Print a pointer address
+- `%%` - Print a percent sign
+
+## Usage examples
+
+<CodeGroup>
+
+```c Basic usage
+#include "ft_printf.h"
+
+int main(void)
+{
+    int count;
+    
+    count = ft_printf("Hello, %s!\n", "World");
+    ft_printf("Characters printed: %d\n", count);
+    return (0);
+}
+```
+
+```c Multiple specifiers
+#include "ft_printf.h"
+
+int main(void)
+{
+    char c = 'A';
+    int num = 42;
+    unsigned int hex = 255;
+    
+    ft_printf("Character: %c\n", c);
+    ft_printf("Decimal: %d\n", num);
+    ft_printf("Hex (lower): %x\n", hex);
+    ft_printf("Hex (upper): %X\n", hex);
+    return (0);
+}
+```
+
+```c Pointer printing
+#include "ft_printf.h"
+
+int main(void)
+{
+    int value = 42;
+    int *ptr = &value;
+    
+    ft_printf("Address: %p\n", ptr);
+    ft_printf("Value: %d\n", value);
+    return (0);
+}
+```
+
+</CodeGroup>
+
+## Implementation details
+
+The function iterates through the format string character by character:
+
+1. When it encounters a `%` character, it calls `ft_print_param` to handle the conversion specifier
+2. Regular characters are printed directly using `ft_printf_putchar`
+3. A running count of printed characters is maintained and returned
+4. If the format string is `NULL`, the function returns `0` immediately
+
+<Note>
+  The function uses `va_list`, `va_start`, and `va_end` from `stdarg.h` to handle variadic arguments.
+</Note>
+
+## Edge cases
+
+- **NULL format string**: Returns `0` without printing anything
+- **NULL string argument**: Prints `(null)` when `%s` is used with a NULL pointer
+- **NULL pointer**: Prints `(nil)` when `%p` is used with a NULL pointer
+- **INT_MIN**: Correctly handles the minimum integer value `-2147483648`

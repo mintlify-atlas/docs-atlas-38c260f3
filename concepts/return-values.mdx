@@ -1,0 +1,329 @@
+---
+title: Return values
+description: Understand how ft_printf counts and returns the number of characters printed
+---
+
+## Overview
+
+The `ft_printf()` function returns an integer representing the total number of characters written to stdout. This mirrors the behavior of the standard `printf()` function and allows you to track output length or detect errors.
+
+## Basic behavior
+
+Every successful write operation contributes to the return value:
+
+```c
+int count = ft_printf("Hello, world!\n");
+// count = 14 (13 characters + newline)
+```
+
+The return value includes:
+- Regular characters from the format string
+- Characters produced by format specifiers
+- Special characters like newlines and tabs
+
+## Implementation
+
+The main function accumulates character counts from all output operations:
+
+```c
+int ft_printf(const char *format, ...)
+{
+    va_list vargs;
+    int     ret;
+    int     i;
+
+    i = 0;
+    ret = 0;  // Initialize counter
+    if (format == NULL)
+        return (0);
+    va_start(vargs, format);
+    while (format[i])
+    {
+        if (format[i] == '%')
+            ret += ft_print_param(vargs, format[++i]);  // Add conversion count
+        else
+            ret += ft_printf_putchar(format[i]);  // Add 1 for regular char
+        i++;
+    }
+    va_end(vargs);
+    return (ret);  // Return total count
+}
+```
+
+Each helper function returns its character count, which gets added to the running total.
+
+## Character counting by function
+
+Every output function in the library returns the number of characters it writes:
+
+### ft_printf_putchar
+
+Always returns 1 since it writes a single character:
+
+```c
+int ft_printf_putchar(int c)
+{
+    write(1, &c, 1);
+    return (1);
+}
+```
+
+### ft_printf_putstr
+
+Returns the length of the string:
+
+```c
+int ft_printf_putstr(const char *s)
+{
+    int i;
+
+    i = 0;
+    if (s == NULL)
+        return (ft_printf_putstr("(null)"));  // Returns 6
+    while (s[i] != '\0')
+    {
+        write(1, &s[i], 1);
+        i++;
+    }
+    return (i);  // Returns string length
+}
+```
+
+<Note>
+When a NULL pointer is passed to %s, the function prints "(null)" and returns 6, not 0.
+</Note>
+
+### ft_printf_nbr
+
+Counts digits and the optional minus sign:
+
+```c
+ft_printf("%d", 42);     // Returns 2
+ft_printf("%d", -273);   // Returns 4 (3 digits + minus sign)
+ft_printf("%d", 0);      // Returns 1
+```
+
+The implementation handles the special case of INT_MIN:
+
+```c
+if (nbr == -2147483648)
+{
+    ret += ft_printf_putstr("-2147483648");  // Returns 11
+    return (ret);
+}
+```
+
+### ft_printf_unbr
+
+Counts the number of digits in an unsigned integer:
+
+```c
+int ft_printf_unbr(unsigned int nbr)
+{
+    int ret;
+
+    ret = 0;
+    if (nbr == 0)
+        ret += ft_printf_putchar('0');
+    else
+    {
+        if ((nbr / 10) != 0)
+            ft_printf_unbr(nbr / 10);
+        ft_printf_putchar((nbr % 10) + '0');
+        while (nbr > 0)
+        {
+            nbr /= 10;
+            ret++;  // Count each digit
+        }
+    }
+    return (ret);
+}
+```
+
+### ft_printf_hex
+
+Counts hexadecimal digits using a separate counter function:
+
+```c
+static int ft_printf_counthex(unsigned int nbr)
+{
+    int ret;
+
+    ret = 0;
+    while (nbr != 0)
+    {
+        ret++;
+        nbr = nbr / 16;
+    }
+    return (ret);
+}
+```
+
+**Examples:**
+```c
+ft_printf("%x", 255);      // Returns 2 ("ff")
+ft_printf("%X", 255);      // Returns 2 ("FF")
+ft_printf("%x", 4096);     // Returns 4 ("1000")
+```
+
+### ft_printf_ptr
+
+Counts the prefix plus hexadecimal digits:
+
+```c
+int ft_printf_ptr(unsigned long long nbr)
+{
+    int ret;
+
+    ret = 0;
+    if (nbr == 0)
+        ret += ft_printf_putstr("(nil)");  // Returns 5
+    else
+    {
+        ret += ft_printf_putstr("0x");     // Add 2
+        ft_printf_splitptr(nbr);
+        ret += ft_printf_countptr(nbr);    // Add hex digit count
+    }
+    return (ret);
+}
+```
+
+**Examples:**
+```c
+ft_printf("%p", NULL);           // Returns 5 ("(nil)")
+ft_printf("%p", (void*)0xff);    // Returns 4 ("0x" + 2 digits)
+```
+
+## Return value examples
+
+Here are practical examples showing how character counts accumulate:
+
+<Accordion title="Simple format strings">
+```c
+int n;
+
+n = ft_printf("Hello");
+// Output: Hello
+// n = 5
+
+n = ft_printf("Value: %d", 42);
+// Output: Value: 42
+// n = 10 (7 chars + 2 digits + 1 space)
+
+n = ft_printf("%s %s", "Hello", "World");
+// Output: Hello World
+// n = 11 (5 + 1 + 5)
+```
+</Accordion>
+
+<Accordion title="Multiple specifiers">
+```c
+int n;
+
+n = ft_printf("%c%c%c", 'A', 'B', 'C');
+// Output: ABC
+// n = 3
+
+n = ft_printf("%d + %d = %d", 2, 3, 5);
+// Output: 2 + 3 = 5
+// n = 9 (1 + 3 + 1 + 3 + 1)
+
+n = ft_printf("0x%x = %u", 255, 255);
+// Output: 0xff = 255
+// n = 10 (2 + 2 + 3 + 3)
+```
+</Accordion>
+
+<Accordion title="Edge cases">
+```c
+int n;
+
+n = ft_printf("");
+// Output: (nothing)
+// n = 0
+
+n = ft_printf("%%");
+// Output: %
+// n = 1
+
+n = ft_printf("%s", NULL);
+// Output: (null)
+// n = 6
+
+n = ft_printf("%p", NULL);
+// Output: (nil)
+// n = 5
+
+n = ft_printf("%d", -2147483648);
+// Output: -2147483648
+// n = 11
+```
+</Accordion>
+
+## NULL format string
+
+When the format string itself is NULL, the function returns 0 immediately:
+
+```c
+int n = ft_printf(NULL);
+// Output: (nothing)
+// n = 0
+```
+
+This check happens at the start of the function:
+
+```c
+if (format == NULL)
+    return (0);
+```
+
+<Warning>
+Passing a NULL format string is handled gracefully, but passing NULL for a string argument (%s) will print "(null)" and count those characters. These are different scenarios.
+</Warning>
+
+## Practical applications
+
+You can use the return value for various purposes:
+
+### Output length tracking
+
+```c
+int total = 0;
+total += ft_printf("Name: %s\n", "Alice");
+total += ft_printf("Age: %d\n", 30);
+ft_printf("Total characters written: %d\n", total);
+```
+
+### Formatted string length
+
+```c
+// Calculate length without printing
+int len = ft_printf("Error code: %x\n", error_code);
+if (len > 80)
+    ft_printf("Warning: Line too long!\n");
+```
+
+### Alignment and padding
+
+```c
+int printed = ft_printf("Name: %s", name);
+int padding = 40 - printed;
+while (padding-- > 0)
+    ft_printf(" ");
+ft_printf("| Value: %d\n", value);
+```
+
+## Comparison with standard printf
+
+The ft_printf return value behavior matches standard printf for successful operations:
+
+| Scenario | ft_printf | Standard printf |
+|----------|-----------|----------------|
+| Successful write | Number of characters written | Number of characters written |
+| NULL format string | 0 | Undefined behavior |
+| Write error | Not handled (assumes success) | Negative value |
+| Empty string | 0 | 0 |
+
+<Note>
+Unlike standard printf, ft_printf does not check for write errors. It assumes all `write()` calls succeed and does not return negative values on failure.
+</Note>

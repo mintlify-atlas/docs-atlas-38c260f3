@@ -1,0 +1,220 @@
+---
+title: Introduction
+description: A custom implementation of printf for the 42 School curriculum
+---
+
+<div className="relative overflow-hidden bg-gradient-to-br from-[#0066CC] via-[#004499] to-[#002255] dark:from-[#0066CC] dark:via-[#004499] dark:to-[#002255] py-20">
+  <div className="max-w-5xl mx-auto px-6 text-center">
+    <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+      ft_printf Documentation
+    </h1>
+    <p className="text-xl text-white/90 max-w-2xl mx-auto mb-8">
+      A custom implementation of printf for the 42 School curriculum that supports formatted output with various conversion specifiers
+    </p>
+    <div className="flex flex-wrap gap-4 justify-center">
+      <a
+        href="/quickstart"
+        className="px-6 py-3 bg-white text-[#0066CC] rounded-lg font-semibold hover:bg-white/90 transition-colors"
+      >
+        Get Started
+      </a>
+      <a
+        href="/api/ft_printf"
+        className="px-6 py-3 border border-white/30 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors"
+      >
+        API Reference
+      </a>
+    </div>
+  </div>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Quick Start
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Get up and running with ft_printf in just a few steps
+  </p>
+
+  <Steps>
+    <Step title="Clone the repository">
+      Clone the ft_printf repository from GitHub to your local machine.
+
+      ```bash
+      git clone https://github.com/KurroLopez/libftprintf.git
+      cd libftprintf
+      ```
+    </Step>
+
+    <Step title="Build the library">
+      Compile the library using the provided Makefile. This will generate `libftprintf.a`.
+
+      ```bash
+      make
+      ```
+
+      <Note>
+        The compilation follows 42 School Norminette standards with `-Wall -Werror -Wextra` flags.
+      </Note>
+    </Step>
+
+    <Step title="Include in your project">
+      Include the header file in your C source and link the library when compiling.
+
+      ```c
+      #include "ft_printf.h"
+
+      int main(void)
+      {
+          ft_printf("Hello, %s!\n", "world");
+          ft_printf("Number: %d\n", 42);
+          return (0);
+      }
+      ```
+
+      Compile with:
+      ```bash
+      gcc your_file.c -L. -lftprintf -o your_program
+      ```
+    </Step>
+
+    <Step title="Use format specifiers">
+      ft_printf supports multiple format specifiers for different data types.
+
+      ```c
+      ft_printf("Character: %c\n", 'A');
+      ft_printf("String: %s\n", "Hello");
+      ft_printf("Pointer: %p\n", &variable);
+      ft_printf("Decimal: %d\n", 42);
+      ft_printf("Unsigned: %u\n", 123);
+      ft_printf("Hex (lower): %x\n", 255);
+      ft_printf("Hex (upper): %X\n", 255);
+      ft_printf("Percent: %%\n");
+      ```
+    </Step>
+  </Steps>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Explore by Topic
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Dive deeper into specific areas of ft_printf
+  </p>
+
+  <CardGroup cols={2}>
+    <Card
+      title="Format Specifiers"
+      icon="percent"
+      href="/concepts/format-specifiers"
+    >
+      Learn about all supported format specifiers and their behavior
+    </Card>
+    <Card
+      title="Architecture"
+      icon="diagram-project"
+      href="/concepts/architecture"
+    >
+      Understand how ft_printf is structured and how it works internally
+    </Card>
+    <Card
+      title="API Reference"
+      icon="code"
+      href="/api/ft_printf"
+    >
+      Complete reference for all public functions and their signatures
+    </Card>
+    <Card
+      title="Examples"
+      icon="lightbulb"
+      href="/examples/basic-usage"
+    >
+      Real-world examples and usage patterns for common scenarios
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-semibold text-gray-900 dark:text-white mb-4">
+    Key Features
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    What makes ft_printf a reliable printf implementation
+  </p>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="p-6 rounded-2xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-[#0066CC] mb-3">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        42 School Compliant
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Fully compatible with 42 School Norminette standards and coding conventions
+      </p>
+    </div>
+
+    <div className="p-6 rounded-2xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-[#0066CC] mb-3">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Multiple Format Specifiers
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Support for c, s, p, d, i, u, x, X, and % conversion specifiers
+      </p>
+    </div>
+
+    <div className="p-6 rounded-2xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-[#0066CC] mb-3">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Static Library
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Compiles to a static library (libftprintf.a) for easy integration into projects
+      </p>
+    </div>
+
+    <div className="p-6 rounded-2xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27]">
+      <div className="text-[#0066CC] mb-3">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Return Value Tracking
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Returns the total number of characters printed, just like standard printf
+      </p>
+    </div>
+  </div>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="rounded-2xl border border-gray-200 dark:border-[#27272a] bg-gray-50 dark:bg-[#1a1d27] p-8 text-center">
+    <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+      Ready to get started?
+    </h2>
+    <p className="text-base text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+      Follow our quickstart guide to integrate ft_printf into your project in minutes
+    </p>
+    <a
+      href="/quickstart"
+      className="inline-block px-6 py-3 bg-[#0066CC] text-white rounded-lg font-semibold hover:bg-[#004499] transition-colors"
+    >
+      View Quickstart Guide
+    </a>
+  </div>
+</div>

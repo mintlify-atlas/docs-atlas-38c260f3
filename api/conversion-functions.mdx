@@ -1,0 +1,210 @@
+---
+title: Conversion functions
+description: Functions that handle numeric conversions and formatting for different data types
+---
+
+## Overview
+
+Conversion functions are responsible for converting numeric values into their string representations and outputting them. These functions handle signed integers, unsigned integers, hexadecimal numbers, and pointer addresses.
+
+## ft_printf_nbr
+
+Converts and prints a signed integer.
+
+### Function signature
+
+```c
+int ft_printf_nbr(int nbr);
+```
+
+### Parameters
+
+<ParamField path="nbr" type="int" required>
+  The signed integer to print. Supports the full range of `int` including `INT_MIN` (-2147483648) and `INT_MAX` (2147483647).
+</ParamField>
+
+### Return value
+
+Returns the number of characters printed.
+
+### Behavior
+
+- Handles zero by printing `0`
+- Handles `INT_MIN` (-2147483648) as a special case
+- Prints negative sign for negative numbers
+- Converts positive numbers to unsigned and uses `ft_printf_unbr` for printing
+
+### Usage example
+
+```c
+ft_printf_nbr(42);        // Prints: 42
+ft_printf_nbr(-42);       // Prints: -42
+ft_printf_nbr(0);         // Prints: 0
+ft_printf_nbr(-2147483648); // Prints: -2147483648
+```
+
+---
+
+## ft_printf_unbr
+
+Converts and prints an unsigned integer.
+
+### Function signature
+
+```c
+int ft_printf_unbr(unsigned int nbr);
+```
+
+### Parameters
+
+<ParamField path="nbr" type="unsigned int" required>
+  The unsigned integer to print. Supports values from 0 to 4294967295.
+</ParamField>
+
+### Return value
+
+Returns the number of characters printed.
+
+### Behavior
+
+- Handles zero by printing `0`
+- Uses recursion to process digits from most significant to least significant
+- Counts digits by dividing the number by 10 until it reaches 0
+
+### Usage example
+
+```c
+ft_printf_unbr(42);         // Prints: 42
+ft_printf_unbr(0);          // Prints: 0
+ft_printf_unbr(4294967295); // Prints: 4294967295
+```
+
+---
+
+## ft_printf_hex
+
+Converts and prints an unsigned integer in hexadecimal format.
+
+### Function signature
+
+```c
+int ft_printf_hex(unsigned int nbr, char type);
+```
+
+### Parameters
+
+<ParamField path="nbr" type="unsigned int" required>
+  The unsigned integer to convert to hexadecimal format.
+</ParamField>
+
+<ParamField path="type" type="char" required>
+  The case format for hexadecimal digits:
+  - `'x'` for lowercase hexadecimal (a-f)
+  - `'X'` for uppercase hexadecimal (A-F)
+</ParamField>
+
+### Return value
+
+Returns the number of characters printed.
+
+### Behavior
+
+- Handles zero by printing `0`
+- Converts numbers to base 16
+- Digits 0-9 are represented as characters '0'-'9'
+- Digits 10-15 are represented as 'a'-'f' (lowercase) or 'A'-'F' (uppercase)
+- Uses recursion to process the number from most significant to least significant digit
+
+### Usage example
+
+```c
+ft_printf_hex(255, 'x');  // Prints: ff
+ft_printf_hex(255, 'X');  // Prints: FF
+ft_printf_hex(0, 'x');    // Prints: 0
+ft_printf_hex(4096, 'x'); // Prints: 1000
+```
+
+---
+
+## ft_printf_ptr
+
+Converts and prints a pointer address in hexadecimal format.
+
+### Function signature
+
+```c
+int ft_printf_ptr(unsigned long long nbr);
+```
+
+### Parameters
+
+<ParamField path="nbr" type="unsigned long long" required>
+  The pointer address cast to `unsigned long long`. Typically obtained by casting a pointer with `(unsigned long long)ptr`.
+</ParamField>
+
+### Return value
+
+Returns the number of characters printed, including the `0x` prefix or `(nil)` string.
+
+### Behavior
+
+- Prints `(nil)` for NULL pointers (when nbr is 0)
+- Prints `0x` prefix followed by the address in lowercase hexadecimal
+- Uses base 16 conversion similar to `ft_printf_hex` but always lowercase
+- Handles 64-bit addresses on systems where pointers are 8 bytes
+
+### Usage example
+
+```c
+int value = 42;
+int *ptr = &value;
+
+ft_printf_ptr((unsigned long long)ptr);  // Prints: 0x7ffc8b3a4e1c (example)
+ft_printf_ptr(0);                        // Prints: (nil)
+```
+
+<Note>
+  When used through `ft_printf` with the `%p` specifier, the casting is handled automatically by `va_arg`.
+</Note>
+
+## Common patterns
+
+<CodeGroup>
+
+```c Signed integers
+// Using ft_printf
+ft_printf("Number: %d\n", -42);
+ft_printf("Number: %i\n", 42);
+
+// Direct function call
+ft_printf_nbr(-42);
+```
+
+```c Unsigned integers
+// Using ft_printf
+ft_printf("Count: %u\n", 100);
+
+// Direct function call
+ft_printf_unbr(100);
+```
+
+```c Hexadecimal
+// Using ft_printf
+ft_printf("Hex: %x\n", 255);  // lowercase
+ft_printf("Hex: %X\n", 255);  // uppercase
+
+// Direct function call
+ft_printf_hex(255, 'x');
+ft_printf_hex(255, 'X');
+```
+
+```c Pointers
+// Using ft_printf
+int *ptr = NULL;
+ft_printf("Address: %p\n", ptr);
+
+// Direct function call
+ft_printf_ptr((unsigned long long)ptr);
+```
+
+</CodeGroup>

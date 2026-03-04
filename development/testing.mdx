@@ -1,0 +1,482 @@
+---
+title: Testing the library
+description: Learn how to write test programs and verify ft_printf functionality against standard printf
+---
+
+Testing is essential to ensure ft_printf behaves correctly. This guide shows you how to create test programs, link against the library, and validate output.
+
+## Quick start
+
+Create a simple test program to verify basic functionality:
+
+<Steps>
+  <Step title="Create a test file">
+    ```bash
+    cd ~/workspace/source
+    touch test_printf.c
+    ```
+  </Step>
+
+  <Step title="Write a basic test">
+    ```c test_printf.c
+    #include "ft_printf.h"
+    #include <stdio.h>
+
+    int main(void)
+    {
+        int ft_ret;
+        int std_ret;
+
+        ft_ret = ft_printf("Hello, World!\n");
+        std_ret = printf("Hello, World!\n");
+
+        ft_printf("ft_printf returned: %d\n", ft_ret);
+        printf("printf returned: %d\n", std_ret);
+
+        return (0);
+    }
+    ```
+  </Step>
+
+  <Step title="Compile and link">
+    ```bash
+    make
+    cc -Wall -Werror -Wextra test_printf.c libftprintf.a -o test
+    ```
+  </Step>
+
+  <Step title="Run the test">
+    ```bash
+    ./test
+    ```
+  </Step>
+</Steps>
+
+## Linking against the library
+
+There are two ways to link your test program with ft_printf:
+
+### Method 1: Link with the static library
+
+```bash
+cc -Wall -Werror -Wextra test_printf.c libftprintf.a -o test
+```
+
+This directly links the compiled static library.
+
+### Method 2: Link with object files
+
+```bash
+cc -Wall -Werror -Wextra test_printf.c ft_printf.o ft_printf_str.o ft_printf_nbr.o ft_printf_hex.o ft_printf_ptr.o -o test
+```
+
+This links individual object files (useful during development).
+
+<Note>
+Method 1 is recommended for most testing scenarios as it uses the final library artifact.
+</Note>
+
+## Testing format specifiers
+
+The ft_printf implementation supports these format specifiers: `%c`, `%s`, `%d`, `%i`, `%u`, `%x`, `%X`, `%p`, and `%%`.
+
+### Character conversion (`%c`)
+
+```c
+#include "ft_printf.h"
+#include <stdio.h>
+
+int main(void)
+{
+    char c = 'A';
+    
+    ft_printf("ft_printf: %c\n", c);
+    printf("printf:    %c\n", c);
+    
+    // Test with special characters
+    ft_printf("ft_printf: %c%c%c\n", 'H', 'i', '!');
+    printf("printf:    %c%c%c\n", 'H', 'i', '!');
+    
+    return (0);
+}
+```
+
+### String conversion (`%s`)
+
+```c
+#include "ft_printf.h"
+#include <stdio.h>
+
+int main(void)
+{
+    char *str = "Hello, 42!";
+    
+    ft_printf("ft_printf: %s\n", str);
+    printf("printf:    %s\n", str);
+    
+    // Test with NULL
+    ft_printf("ft_printf: %s\n", NULL);
+    printf("printf:    %s\n", NULL);
+    
+    // Test with empty string
+    ft_printf("ft_printf: %s\n", "");
+    printf("printf:    %s\n", "");
+    
+    return (0);
+}
+```
+
+### Integer conversion (`%d` and `%i`)
+
+```c
+#include "ft_printf.h"
+#include <stdio.h>
+#include <limits.h>
+
+int main(void)
+{
+    int positive = 42;
+    int negative = -42;
+    int zero = 0;
+    
+    // Test positive numbers
+    ft_printf("ft_printf: %d\n", positive);
+    printf("printf:    %d\n", positive);
+    
+    // Test negative numbers
+    ft_printf("ft_printf: %d\n", negative);
+    printf("printf:    %d\n", negative);
+    
+    // Test zero
+    ft_printf("ft_printf: %d\n", zero);
+    printf("printf:    %d\n", zero);
+    
+    // Test edge cases
+    ft_printf("ft_printf: %d\n", INT_MAX);
+    printf("printf:    %d\n", INT_MAX);
+    
+    ft_printf("ft_printf: %d\n", INT_MIN);
+    printf("printf:    %d\n", INT_MIN);
+    
+    return (0);
+}
+```
+
+### Unsigned integer conversion (`%u`)
+
+```c
+#include "ft_printf.h"
+#include <stdio.h>
+#include <limits.h>
+
+int main(void)
+{
+    unsigned int num = 42;
+    
+    ft_printf("ft_printf: %u\n", num);
+    printf("printf:    %u\n", num);
+    
+    // Test with UINT_MAX
+    ft_printf("ft_printf: %u\n", UINT_MAX);
+    printf("printf:    %u\n", UINT_MAX);
+    
+    // Test with zero
+    ft_printf("ft_printf: %u\n", 0);
+    printf("printf:    %u\n", 0);
+    
+    return (0);
+}
+```
+
+### Hexadecimal conversion (`%x` and `%X`)
+
+```c
+#include "ft_printf.h"
+#include <stdio.h>
+
+int main(void)
+{
+    unsigned int num = 255;
+    
+    // Lowercase hex
+    ft_printf("ft_printf: %x\n", num);
+    printf("printf:    %x\n", num);
+    
+    // Uppercase hex
+    ft_printf("ft_printf: %X\n", num);
+    printf("printf:    %X\n", num);
+    
+    // Test with various values
+    ft_printf("ft_printf: %x, %x, %x\n", 0, 16, 4096);
+    printf("printf:    %x, %x, %x\n", 0, 16, 4096);
+    
+    return (0);
+}
+```
+
+### Pointer conversion (`%p`)
+
+```c
+#include "ft_printf.h"
+#include <stdio.h>
+
+int main(void)
+{
+    int x = 42;
+    int *ptr = &x;
+    
+    ft_printf("ft_printf: %p\n", ptr);
+    printf("printf:    %p\n", ptr);
+    
+    // Test with NULL
+    ft_printf("ft_printf: %p\n", NULL);
+    printf("printf:    %p\n", NULL);
+    
+    return (0);
+}
+```
+
+### Percent sign (`%%`)
+
+```c
+#include "ft_printf.h"
+#include <stdio.h>
+
+int main(void)
+{
+    ft_printf("ft_printf: 100%% complete\n");
+    printf("printf:    100%% complete\n");
+    
+    ft_printf("ft_printf: %%d %%s %%c\n");
+    printf("printf:    %%d %%s %%c\n");
+    
+    return (0);
+}
+```
+
+## Comprehensive test suite
+
+Here's a complete test program that validates all format specifiers:
+
+```c test_all_formats.c
+#include "ft_printf.h"
+#include <stdio.h>
+#include <limits.h>
+
+int main(void)
+{
+    int ft_ret;
+    int std_ret;
+    
+    printf("=== Testing ft_printf ===\n\n");
+    
+    // Character tests
+    printf("--- Character tests ---\n");
+    ft_ret = ft_printf("ft_printf: %c\n", 'A');
+    std_ret = printf("printf:    %c\n", 'A');
+    printf("Return values: ft=%d, std=%d\n\n", ft_ret, std_ret);
+    
+    // String tests
+    printf("--- String tests ---\n");
+    ft_ret = ft_printf("ft_printf: %s\n", "Hello, 42!");
+    std_ret = printf("printf:    %s\n", "Hello, 42!");
+    printf("Return values: ft=%d, std=%d\n\n", ft_ret, std_ret);
+    
+    // Integer tests
+    printf("--- Integer tests ---\n");
+    ft_ret = ft_printf("ft_printf: %d, %i\n", 42, -42);
+    std_ret = printf("printf:    %d, %i\n", 42, -42);
+    printf("Return values: ft=%d, std=%d\n\n", ft_ret, std_ret);
+    
+    // Unsigned tests
+    printf("--- Unsigned tests ---\n");
+    ft_ret = ft_printf("ft_printf: %u\n", UINT_MAX);
+    std_ret = printf("printf:    %u\n", UINT_MAX);
+    printf("Return values: ft=%d, std=%d\n\n", ft_ret, std_ret);
+    
+    // Hexadecimal tests
+    printf("--- Hexadecimal tests ---\n");
+    ft_ret = ft_printf("ft_printf: %x, %X\n", 255, 255);
+    std_ret = printf("printf:    %x, %X\n", 255, 255);
+    printf("Return values: ft=%d, std=%d\n\n", ft_ret, std_ret);
+    
+    // Pointer tests
+    printf("--- Pointer tests ---\n");
+    int x = 42;
+    ft_ret = ft_printf("ft_printf: %p\n", &x);
+    std_ret = printf("printf:    %p\n", &x);
+    printf("Return values: ft=%d, std=%d\n\n", ft_ret, std_ret);
+    
+    // Percent tests
+    printf("--- Percent tests ---\n");
+    ft_ret = ft_printf("ft_printf: 100%%\n");
+    std_ret = printf("printf:    100%%\n");
+    printf("Return values: ft=%d, std=%d\n\n", ft_ret, std_ret);
+    
+    // Mixed format tests
+    printf("--- Mixed format tests ---\n");
+    ft_ret = ft_printf("ft_printf: %s has %d points (%x in hex)\n", "Alice", 42, 42);
+    std_ret = printf("printf:    %s has %d points (%x in hex)\n", "Alice", 42, 42);
+    printf("Return values: ft=%d, std=%d\n\n", ft_ret, std_ret);
+    
+    printf("=== Tests complete ===\n");
+    return (0);
+}
+```
+
+Compile and run:
+```bash
+make
+cc -Wall -Werror -Wextra test_all_formats.c libftprintf.a -o test_all
+./test_all
+```
+
+## Return value testing
+
+ft_printf returns the number of characters printed, just like printf:
+
+```c
+#include "ft_printf.h"
+#include <stdio.h>
+
+int main(void)
+{
+    int ret;
+    
+    ret = ft_printf("Hello");
+    printf(" -> returned: %d\n", ret);
+    
+    ret = ft_printf("Number: %d", 42);
+    printf(" -> returned: %d\n", ret);
+    
+    ret = ft_printf("");
+    printf("Empty string -> returned: %d\n", ret);
+    
+    return (0);
+}
+```
+
+## Comparing with standard printf
+
+<Warning>
+Direct output comparison can be tricky due to platform-specific formatting differences. Focus on verifying that both functions produce equivalent results for the same inputs.
+</Warning>
+
+### Using diff for comparison
+
+Create a test that redirects output to files:
+
+```bash
+# Redirect ft_printf output
+./test_ft > ft_output.txt
+
+# Redirect standard printf output
+./test_std > std_output.txt
+
+# Compare outputs
+diff ft_output.txt std_output.txt
+```
+
+### Automated testing script
+
+Create a shell script to automate testing:
+
+```bash test.sh
+#!/bin/bash
+
+echo "Building library..."
+make fclean && make
+
+echo "Compiling test program..."
+cc -Wall -Werror -Wextra test_all_formats.c libftprintf.a -o test_all
+
+if [ $? -eq 0 ]; then
+    echo "Running tests..."
+    ./test_all
+    echo "Tests complete!"
+else
+    echo "Compilation failed!"
+    exit 1
+fi
+```
+
+Make it executable and run:
+```bash
+chmod +x test.sh
+./test.sh
+```
+
+## Edge cases to test
+
+Make sure to test these edge cases:
+
+<CodeGroup>
+```c Null pointers
+ft_printf("%s", NULL);
+ft_printf("%p", NULL);
+```
+
+```c Edge values
+ft_printf("%d", INT_MIN);
+ft_printf("%d", INT_MAX);
+ft_printf("%u", UINT_MAX);
+ft_printf("%u", 0);
+```
+
+```c Empty strings
+ft_printf("");
+ft_printf("%s", "");
+```
+
+```c Multiple conversions
+ft_printf("%c %s %d %x %p %%", 'A', "test", 42, 255, &ptr);
+```
+</CodeGroup>
+
+## Debugging tips
+
+### Enable verbose output
+
+Add debug prints in your test program:
+
+```c
+#define DEBUG 1
+
+#if DEBUG
+    printf("[DEBUG] Testing format: %s\n", format_str);
+#endif
+```
+
+### Use valgrind for memory checking
+
+```bash
+valgrind --leak-check=full ./test
+```
+
+### Compare byte-by-byte output
+
+```c
+#include "ft_printf.h"
+#include <stdio.h>
+#include <string.h>
+
+int main(void)
+{
+    int ft_ret = ft_printf("Test: %d\n", 42);
+    int std_ret = printf("Test: %d\n", 42);
+    
+    if (ft_ret != std_ret)
+        printf("ERROR: Return values differ! ft=%d, std=%d\n", ft_ret, std_ret);
+    else
+        printf("SUCCESS: Return values match!\n");
+    
+    return (0);
+}
+```
+
+## Next steps
+
+After testing your implementation:
+- Review the [API Reference](/api/ft_printf) for complete function documentation
+- Learn about [contributing improvements](/development/contributing)
+- Explore [examples](/examples/basic-usage) for more use cases

@@ -1,0 +1,160 @@
+---
+title: Architecture
+description: Learn how ft_printf is structured and processes format strings into output
+---
+
+## Overview
+
+The ft_printf library is built with a modular architecture that separates concerns between format string parsing, variadic argument handling, and conversion output. This design makes the codebase maintainable and mirrors the structure of the standard printf function.
+
+## Core components
+
+The library consists of several key files, each handling specific responsibilities:
+
+<CardGroup cols={2}>
+  <Card title="ft_printf.c" icon="code">
+    Main entry point and format string parser
+  </Card>
+  <Card title="ft_printf_str.c" icon="font">
+    Character and string conversions
+  </Card>
+  <Card title="ft_printf_nbr.c" icon="hashtag">
+    Signed and unsigned integer conversions
+  </Card>
+  <Card title="ft_printf_hex.c" icon="hexagon">
+    Hexadecimal conversions (lowercase and uppercase)
+  </Card>
+  <Card title="ft_printf_ptr.c" icon="location-dot">
+    Pointer address conversions
+  </Card>
+  <Card title="ft_printf.h" icon="file-code">
+    Public API and function declarations
+  </Card>
+</CardGroup>
+
+## Execution flow
+
+When you call `ft_printf()`, the function executes in three main phases:
+
+### 1. Initialization
+
+The function validates input and initializes the variadic argument list:
+
+```c
+int ft_printf(const char *format, ...)
+{
+    va_list vargs;
+    int     ret;
+    int     i;
+
+    i = 0;
+    ret = 0;
+    if (format == NULL)
+        return (0);
+    va_start(vargs, format);
+    // ...
+}
+```
+
+<Note>
+The function returns 0 immediately if the format string is NULL, preventing undefined behavior from null pointer access.
+</Note>
+
+### 2. Format string parsing
+
+The main loop iterates through each character in the format string:
+
+```c
+while (format[i])
+{
+    if (format[i] == '%')
+        ret += ft_print_param(vargs, format[++i]);
+    else
+        ret += ft_printf_putchar(format[i]);
+    i++;
+}
+```
+
+For each character:
+- If it's a regular character, output it directly using `ft_printf_putchar()`
+- If it's a `%` character, advance to the next character and dispatch to the appropriate conversion handler
+
+### 3. Conversion dispatch
+
+The `ft_print_param()` function acts as a dispatcher, routing each format specifier to its specialized handler:
+
+```c
+int ft_print_param(va_list list, const char param)
+{
+    int ret;
+
+    ret = 0;
+    if (param == 'c')
+        ret += ft_printf_putchar(va_arg(list, int));
+    else if (param == 's')
+        ret += ft_printf_putstr(va_arg(list, char *));
+    else if ((param == 'd') || (param == 'i'))
+        ret += ft_printf_nbr(va_arg(list, int));
+    else if ((param == 'u'))
+        ret += ft_printf_unbr(va_arg(list, unsigned int));
+    else if ((param == 'x') || (param == 'X'))
+        ret += ft_printf_hex(va_arg(list, unsigned int), param);
+    else if ((param == 'p'))
+        ret += ft_printf_ptr(va_arg(list, unsigned long long));
+    else if ((param == '%'))
+        ret += ft_printf_putchar('%');
+    return (ret);
+}
+```
+
+Each handler extracts the appropriate argument using `va_arg()` and returns the number of characters written.
+
+## Variadic argument handling
+
+The library uses C's `<stdarg.h>` macros to handle variable arguments:
+
+<Accordion title="How variadic arguments work">
+Variadic functions in C allow you to pass a variable number of arguments. The ft_printf implementation uses three key macros:
+
+1. **va_list** - A type that holds information about variable arguments
+2. **va_start(ap, last)** - Initializes the va_list to start after the last named parameter
+3. **va_arg(ap, type)** - Retrieves the next argument of the specified type
+4. **va_end(ap)** - Cleans up the va_list when done
+
+The function signature `ft_printf(const char *format, ...)` declares that after the format parameter, any number of additional arguments can follow. The `va_arg()` macro advances through these arguments sequentially, which is why the order of specifiers in the format string must match the order of arguments passed.
+</Accordion>
+
+<Warning>
+Each call to `va_arg()` consumes one argument from the list and advances the internal pointer. If you call `va_arg()` more times than arguments were passed, or with the wrong type, the behavior is undefined.
+</Warning>
+
+## Character counting
+
+Every function in the library returns the number of characters it writes:
+
+```c
+int ft_printf_putchar(int c)
+{
+    write(1, &c, 1);
+    return (1);  // Always returns 1
+}
+```
+
+The main `ft_printf()` function accumulates these counts in the `ret` variable, which becomes the final return value. This allows you to track exactly how many characters were written to stdout.
+
+## Modular design benefits
+
+The separation of conversion logic into dedicated files provides several advantages:
+
+- **Maintainability**: Each conversion type is isolated, making bugs easier to find and fix
+- **Testability**: Individual conversion functions can be tested independently
+- **Readability**: The codebase is easier to understand with clear separation of concerns
+- **Extensibility**: Adding new format specifiers requires minimal changes to existing code
+
+## Memory considerations
+
+<Note>
+The ft_printf implementation uses direct `write()` system calls rather than buffering. This means output appears immediately but may result in more system calls compared to standard printf, which uses buffered I/O.
+</Note>
+
+The library allocates no dynamic memory on the heap. All operations use stack-based storage and direct system calls, making it suitable for environments where heap allocation must be avoided or minimized.

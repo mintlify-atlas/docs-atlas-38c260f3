@@ -1,80 +1,273 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with ft_printf in minutes - write your first formatted output
 ---
 
-## Get started in three steps
+This guide gets you from zero to your first working ft_printf program in just a few minutes.
 
-Get your documentation site running locally and make your first customization.
+## Your first ft_printf program
 
-### Step 1: Set up your local environment
+Create a file called `main.c` with the following content:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+```c
+#include "ft_printf.h"
 
-### Step 2: Deploy your changes
+int main(void)
+{
+    ft_printf("Hello, World!\n");
+    return (0);
+}
+```
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+Compile and run:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+```bash
+gcc main.c -L. -lftprintf -I. -o hello
+./hello
+```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+Output:
+```
+Hello, World!
+```
 
-### Step 3: Go live
+<Tip>
+If you get compilation errors, make sure you've followed the [Installation](/installation) guide and built the library with `make`.
+</Tip>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+## Understanding format specifiers
+
+ft_printf supports the following format specifiers:
+
+| Specifier | Type | Description |
+|-----------|------|-------------|
+| `%c` | char | Single character |
+| `%s` | char * | String of characters |
+| `%d` or `%i` | int | Signed decimal integer |
+| `%u` | unsigned int | Unsigned decimal integer |
+| `%x` | unsigned int | Hexadecimal (lowercase) |
+| `%X` | unsigned int | Hexadecimal (uppercase) |
+| `%p` | void * | Pointer address |
+| `%%` | - | Literal percent sign |
+
+## Working with different data types
+
+Here's a comprehensive example showing all supported format specifiers:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    char        c = 'A';
+    char        *str = "Hello";
+    int         num = 42;
+    int         negative = -42;
+    unsigned int u_num = 3000000000;
+    int         hex_val = 255;
+    void        *ptr = &num;
+
+    ft_printf("Character: %c\n", c);
+    ft_printf("String: %s\n", str);
+    ft_printf("Decimal: %d\n", num);
+    ft_printf("Integer: %i\n", negative);
+    ft_printf("Unsigned: %u\n", u_num);
+    ft_printf("Hex (lower): %x\n", hex_val);
+    ft_printf("Hex (upper): %X\n", hex_val);
+    ft_printf("Pointer: %p\n", ptr);
+    ft_printf("Percent: %%\n");
+
+    return (0);
+}
+```
+
+Output:
+```
+Character: A
+String: Hello
+Decimal: 42
+Integer: -42
+Unsigned: 3000000000
+Hex (lower): ff
+Hex (upper): FF
+Pointer: 0x7ffd1234abcd
+Percent: %
+```
+
+<Note>
+Pointer addresses will vary each time you run the program due to address space layout randomization (ASLR).
+</Note>
+
+## Understanding the return value
+
+ft_printf returns the number of characters printed (excluding the null terminator). This is useful for tracking output length:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    int len;
+
+    len = ft_printf("Hello, World!\n");
+    ft_printf("Printed %d characters\n", len);
+
+    return (0);
+}
+```
+
+Output:
+```
+Hello, World!
+Printed 14 characters
+```
+
+<Steps>
+  <Step title="The return value counts all printed characters">
+    This includes letters, spaces, punctuation, and newlines.
+  </Step>
+
+  <Step title="Use it for error checking">
+    If ft_printf returns a different value than expected, it may indicate an issue:
+
+    ```c
+    int expected = 5;
+    int actual = ft_printf("Hello");
+    if (actual != expected)
+        ft_printf("\nWarning: Expected %d but got %d\n", expected, actual);
+    ```
+  </Step>
+
+  <Step title="Combine multiple calls">
+    You can accumulate the return values:
+
+    ```c
+    int total = 0;
+    total += ft_printf("Line 1\n");
+    total += ft_printf("Line 2\n");
+    ft_printf("Total characters: %d\n", total);
+    ```
+  </Step>
+</Steps>
+
+## Edge cases and special behavior
+
+ft_printf handles several edge cases automatically:
+
+### Null strings
+
+```c
+char *str = NULL;
+ft_printf("String: %s\n", str);
+// Output: String: (null)
+```
+
+### Null pointers
+
+```c
+void *ptr = NULL;
+ft_printf("Pointer: %p\n", ptr);
+// Output: Pointer: (nil)
+```
+
+### Minimum and maximum integers
+
+```c
+ft_printf("INT_MIN: %d\n", -2147483648);
+ft_printf("INT_MAX: %d\n", 2147483647);
+ft_printf("UINT_MAX: %u\n", 4294967295);
+```
+
+Output:
+```
+INT_MIN: -2147483648
+INT_MAX: 2147483647
+UINT_MAX: 4294967295
+```
+
+### Zero values
+
+```c
+ft_printf("Zero decimal: %d\n", 0);
+ft_printf("Zero unsigned: %u\n", 0);
+ft_printf("Zero hex: %x\n", 0);
+```
+
+Output:
+```
+Zero decimal: 0
+Zero unsigned: 0
+Zero hex: 0
+```
+
+## Mixing format specifiers
+
+You can use multiple format specifiers in a single call:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    char *name = "Alice";
+    int age = 25;
+    float height = 5.7;  // Note: %f not supported, shown for context
+
+    ft_printf("Name: %s, Age: %d\n", name, age);
+    ft_printf("%s is %d years old\n", name, age);
+
+    // Complex formatting
+    ft_printf("User %s (ID: %d, Hex: %x)\n", name, age, age);
+
+    return (0);
+}
+```
+
+Output:
+```
+Name: Alice, Age: 25
+Alice is 25 years old
+User Alice (ID: 25, Hex: 19)
+```
+
+<Warning>
+ft_printf is a simplified implementation and does not support:
+- Field width and precision modifiers (e.g., `%10s`, `%.2f`)
+- Floating-point numbers (`%f`, `%e`, `%g`)
+- Long modifiers (`%ld`, `%lld`)
+- Flag characters (`%+d`, `%#x`, `%0d`)
+
+These limitations are typical for 42 School projects focused on understanding variadic functions.
+</Warning>
+
+## Common patterns
+
+Here are some common usage patterns:
+
+<CodeGroup>
+```c Debug output
+ft_printf("[DEBUG] Variable x = %d at address %p\n", x, &x);
+```
+
+```c Error messages
+if (error)
+    ft_printf("Error: Invalid input '%s'\n", input);
+```
+
+```c Status reporting
+ft_printf("Processing item %d of %d...\n", current, total);
+```
+
+```c Hex dumps
+ft_printf("Byte value: %d (0x%x)\n", byte, byte);
+```
+</CodeGroup>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
+Now that you're familiar with the basics:
 
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+- Explore the [Format Specifiers](/concepts/format-specifiers) documentation for detailed behavior
+- Learn about [Return Values](/concepts/return-values) and error handling
+- Check the [API Reference](/api/ft_printf) for function signatures
+- See [Examples](/examples/basic-usage) for more complex use cases

@@ -1,0 +1,227 @@
+---
+title: Building the library
+description: Learn how to compile ft_printf using the Makefile and understand the build process
+---
+
+The ft_printf library uses a Makefile to manage compilation. This guide covers all available build targets and how to troubleshoot common compilation issues.
+
+## Build configuration
+
+The library is compiled using the following configuration:
+
+- **Compiler**: `cc` (system default C compiler)
+- **Compilation flags**: `-Wall -Werror -Wextra`
+- **Output**: Static library `libftprintf.a`
+- **Archive tool**: `ar rcs`
+
+<Note>
+The `-Werror` flag treats all warnings as errors, which enforces strict code quality standards required by 42 School.
+</Note>
+
+## Source files
+
+The library consists of the following source files:
+
+- `ft_printf.c` - Main printf implementation and format parser
+- `ft_printf_str.c` - String and character conversion handlers
+- `ft_printf_nbr.c` - Integer and unsigned integer handlers
+- `ft_printf_hex.c` - Hexadecimal conversion handlers
+- `ft_printf_ptr.c` - Pointer address handler
+- `ft_printf.h` - Header file with function prototypes
+
+## Building the library
+
+<Steps>
+  <Step title="Navigate to the source directory">
+    ```bash
+    cd ~/workspace/source
+    ```
+  </Step>
+
+  <Step title="Run the build command">
+    ```bash
+    make
+    ```
+    
+    This compiles all `.c` files into object files (`.o`) and archives them into `libftprintf.a`.
+  </Step>
+
+  <Step title="Verify the output">
+    ```bash
+    ls -l libftprintf.a
+    ```
+    
+    You should see the static library file in the source directory.
+  </Step>
+</Steps>
+
+## Makefile targets
+
+The Makefile provides several targets for different build operations:
+
+### `make` or `make all`
+
+Compiles the entire library from source.
+
+```bash
+make all
+```
+
+**What it does**:
+1. Compiles each `.c` file to a `.o` object file using: `cc -Wall -Werror -Wextra -o file.o -c file.c`
+2. Archives all object files into `libftprintf.a` using: `ar rcs libftprintf.a *.o`
+3. Displays "Library compiled" message
+
+### `make clean`
+
+Removes all object files but keeps the compiled library.
+
+```bash
+make clean
+```
+
+**What it does**:
+- Removes: `ft_printf.o`, `ft_printf_str.o`, `ft_printf_nbr.o`, `ft_printf_hex.o`, `ft_printf_ptr.o`
+- Keeps: `libftprintf.a`
+- Displays "Objects files removed" message
+
+### `make fclean`
+
+Removes all object files and the compiled library (full clean).
+
+```bash
+make fclean
+```
+
+**What it does**:
+1. Runs `make clean` to remove object files
+2. Removes `libftprintf.a`
+3. Displays "Execute file removed" message
+
+### `make re`
+
+Performs a full rebuild (clean + recompile).
+
+```bash
+make re
+```
+
+**What it does**:
+1. Runs `make fclean` to remove all build artifacts
+2. Runs `make all` to rebuild from scratch
+
+<Note>
+Use `make re` when you want to ensure a completely fresh build, especially after making significant changes to header files.
+</Note>
+
+## Compilation process details
+
+### Individual file compilation
+
+Each source file is compiled independently with this command:
+
+```bash
+cc -Wall -Werror -Wextra -o ft_printf.o -c ft_printf.c
+```
+
+The flags ensure:
+- `-Wall`: Enable all common warnings
+- `-Werror`: Treat warnings as errors
+- `-Wextra`: Enable extra warnings
+- `-c`: Compile to object file without linking
+
+### Library creation
+
+Once all object files are compiled, they're archived into a static library:
+
+```bash
+ar rcs libftprintf.a ft_printf.o ft_printf_str.o ft_printf_nbr.o ft_printf_hex.o ft_printf_ptr.o
+```
+
+The `ar` flags mean:
+- `r`: Insert files into archive (replace if exists)
+- `c`: Create archive if it doesn't exist
+- `s`: Write an index (symbol table) into the archive
+
+## Troubleshooting
+
+### Compilation errors
+
+<Warning>
+If you encounter compilation errors, check the following:
+</Warning>
+
+**Undefined reference errors**
+
+If you see errors like `undefined reference to 'function_name'`:
+- Ensure all source files are listed in the `SRCS` variable in the Makefile
+- Run `make fclean && make` to rebuild completely
+
+**Warning treated as error**
+
+Since `-Werror` is enabled, any warning will stop compilation:
+```
+ft_printf.c:42:6: error: unused variable 'x' [-Werror,-Wunused-variable]
+```
+
+To fix:
+1. Address the warning by fixing the code issue
+2. Remove unused variables, fix implicit declarations, etc.
+
+**Missing header file**
+
+If you see `fatal error: 'ft_printf.h' file not found`:
+- Ensure `ft_printf.h` exists in the source directory
+- Check that the `#include "ft_printf.h"` path is correct in `.c` files
+
+### Permission errors
+
+If you get permission denied errors:
+```bash
+chmod +x ~/workspace/source/Makefile
+```
+
+### Clean build not working
+
+If `make clean` or `make fclean` fails:
+- Check that the `RM` variable is set correctly: `rm -f`
+- Manually remove files: `rm -f *.o libftprintf.a`
+
+### Archive creation fails
+
+If `ar rcs` fails:
+- Ensure the `ar` tool is installed on your system
+- Check that all object files were created successfully
+- Run `make clean && make` to retry
+
+## Build output example
+
+A successful build produces output like this:
+
+```bash
+$ make
+cc -Wall -Werror -Wextra -o ft_printf.o -c ft_printf.c
+compile successfully: ft_printf.o
+
+cc -Wall -Werror -Wextra -o ft_printf_str.o -c ft_printf_str.c
+compile successfully: ft_printf_str.o
+
+cc -Wall -Werror -Wextra -o ft_printf_nbr.o -c ft_printf_nbr.c
+compile successfully: ft_printf_nbr.o
+
+cc -Wall -Werror -Wextra -o ft_printf_hex.o -c ft_printf_hex.c
+compile successfully: ft_printf_hex.o
+
+cc -Wall -Werror -Wextra -o ft_printf_ptr.o -c ft_printf_ptr.c
+compile successfully: ft_printf_ptr.o
+
+ar rcs libftprintf.a ft_printf.o ft_printf_str.o ft_printf_nbr.o ft_printf_hex.o ft_printf_ptr.o
+Library compiled
+```
+
+## Next steps
+
+After building the library, you can:
+- [Write test programs](/development/testing) to verify functionality
+- [Link against the library](/installation) in your projects
+- [Contribute improvements](/development/contributing) to the codebase

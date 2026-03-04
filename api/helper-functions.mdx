@@ -1,0 +1,248 @@
+---
+title: Helper functions
+description: Low-level utility functions for character and string output, and parameter processing
+---
+
+## Overview
+
+Helper functions provide the fundamental building blocks for the ft_printf library. They handle basic character and string output, as well as dispatching to the appropriate conversion function based on the format specifier.
+
+## ft_printf_putchar
+
+Writes a single character to standard output.
+
+### Function signature
+
+```c
+int ft_printf_putchar(int c);
+```
+
+### Parameters
+
+<ParamField path="c" type="int" required>
+  The character to write. Although the parameter type is `int`, only the least significant byte is written to output.
+</ParamField>
+
+### Return value
+
+Always returns `1`, indicating one character was written.
+
+### Behavior
+
+- Uses the `write` system call to output the character to file descriptor 1 (stdout)
+- Writes exactly 1 byte
+- The `int` parameter type matches the standard `putchar` function signature
+
+### Usage example
+
+```c
+ft_printf_putchar('A');      // Prints: A
+ft_printf_putchar('\n');     // Prints: newline
+ft_printf_putchar(65);       // Prints: A (ASCII value)
+```
+
+<Note>
+  This function is used internally by all other output functions in the library as the fundamental output primitive.
+</Note>
+
+---
+
+## ft_printf_putstr
+
+Writes a null-terminated string to standard output.
+
+### Function signature
+
+```c
+int ft_printf_putstr(const char *s);
+```
+
+### Parameters
+
+<ParamField path="s" type="const char *" required>
+  The null-terminated string to write. If `NULL`, the function prints `(null)` instead.
+</ParamField>
+
+### Return value
+
+Returns the number of characters printed.
+
+### Behavior
+
+- Iterates through the string until the null terminator is encountered
+- Uses `write` system call for each character
+- Handles `NULL` pointers by recursively calling itself with the string `"(null)"`
+- Counts and returns the total number of characters written
+
+### Usage example
+
+```c
+ft_printf_putstr("Hello");    // Prints: Hello, returns 5
+ft_printf_putstr("");         // Prints nothing, returns 0
+ft_printf_putstr(NULL);       // Prints: (null), returns 6
+```
+
+### NULL handling
+
+When a `NULL` pointer is passed:
+
+```c
+const char *str = NULL;
+int count = ft_printf_putstr(str);  // Prints: (null)
+// count is 6
+```
+
+---
+
+## ft_print_param
+
+Dispatches to the appropriate conversion function based on the format specifier.
+
+### Function signature
+
+```c
+int ft_print_param(va_list list, const char param);
+```
+
+### Parameters
+
+<ParamField path="list" type="va_list" required>
+  The variable argument list containing the values to be printed. This list is managed by `ft_printf` using `va_start` and `va_end`.
+</ParamField>
+
+<ParamField path="param" type="const char" required>
+  The conversion specifier character that determines which conversion function to call. Valid values are: `c`, `s`, `d`, `i`, `u`, `x`, `X`, `p`, `%`.
+</ParamField>
+
+### Return value
+
+Returns the number of characters printed by the called conversion function.
+
+### Behavior
+
+The function examines the `param` character and dispatches accordingly:
+
+- `'c'`: Extracts `int` argument and calls `ft_printf_putchar`
+- `'s'`: Extracts `char *` argument and calls `ft_printf_putstr`
+- `'d'` or `'i'`: Extracts `int` argument and calls `ft_printf_nbr`
+- `'u'`: Extracts `unsigned int` argument and calls `ft_printf_unbr`
+- `'x'` or `'X'`: Extracts `unsigned int` argument and calls `ft_printf_hex` with the case type
+- `'p'`: Extracts `unsigned long long` argument and calls `ft_printf_ptr`
+- `'%'`: Prints a literal `%` character using `ft_printf_putchar`
+
+### Conversion specifier mapping
+
+| Specifier | Argument Type | Function Called |
+|-----------|---------------|------------------|
+| `c` | `int` | `ft_printf_putchar` |
+| `s` | `char *` | `ft_printf_putstr` |
+| `d`, `i` | `int` | `ft_printf_nbr` |
+| `u` | `unsigned int` | `ft_printf_unbr` |
+| `x`, `X` | `unsigned int` | `ft_printf_hex` |
+| `p` | `unsigned long long` | `ft_printf_ptr` |
+| `%` | (none) | `ft_printf_putchar` |
+
+### Usage example
+
+This function is typically not called directly by users, but rather by `ft_printf`:
+
+```c
+// Inside ft_printf implementation
+va_list vargs;
+va_start(vargs, format);
+
+// When '%d' is encountered in format string:
+int chars_printed = ft_print_param(vargs, 'd');
+
+va_end(vargs);
+```
+
+### Internal flow
+
+```c
+// Example of how ft_print_param processes different specifiers
+va_list args;
+int result;
+
+// Character
+result = ft_print_param(args, 'c');  // Calls va_arg(args, int)
+
+// String  
+result = ft_print_param(args, 's');  // Calls va_arg(args, char *)
+
+// Integer
+result = ft_print_param(args, 'd');  // Calls va_arg(args, int)
+
+// Unsigned
+result = ft_print_param(args, 'u');  // Calls va_arg(args, unsigned int)
+
+// Hex (lowercase/uppercase)
+result = ft_print_param(args, 'x');  // Calls va_arg(args, unsigned int)
+
+// Pointer
+result = ft_print_param(args, 'p');  // Calls va_arg(args, unsigned long long)
+
+// Literal percent
+result = ft_print_param(args, '%');  // No va_arg needed
+```
+
+<Note>
+  This function acts as the central dispatcher in the ft_printf architecture, routing format specifiers to their corresponding conversion functions.
+</Note>
+
+## Function relationships
+
+The helper functions work together in a hierarchical structure:
+
+```
+ft_printf
+  └─ ft_print_param
+      ├─ ft_printf_putchar (for %c and %%)
+      ├─ ft_printf_putstr (for %s)
+      ├─ ft_printf_nbr (for %d and %i)
+      │   └─ ft_printf_unbr
+      │       └─ ft_printf_putchar
+      ├─ ft_printf_unbr (for %u)
+      │   └─ ft_printf_putchar
+      ├─ ft_printf_hex (for %x and %X)
+      │   └─ ft_printf_putchar
+      └─ ft_printf_ptr (for %p)
+          ├─ ft_printf_putstr (for "0x" and "(nil)")
+          └─ ft_printf_putchar
+```
+
+## Common patterns
+
+<CodeGroup>
+
+```c Character output
+// Direct usage
+ft_printf_putchar('H');
+ft_printf_putchar('i');
+ft_printf_putchar('\n');
+
+// Through ft_printf
+ft_printf("%c%c%c\n", 'H', 'i', '!');
+```
+
+```c String output
+// Direct usage
+ft_printf_putstr("Hello, World!");
+ft_printf_putstr(NULL);  // Prints: (null)
+
+// Through ft_printf
+ft_printf("%s\n", "Hello, World!");
+ft_printf("%s\n", NULL);  // Prints: (null)
+```
+
+```c Building composite output
+// Combining helper functions
+ft_printf_putstr("Result: ");
+ft_printf_nbr(42);
+ft_printf_putchar('\n');
+
+// Equivalent ft_printf call
+ft_printf("Result: %d\n", 42);
+```
+
+</CodeGroup>

@@ -1,0 +1,216 @@
+---
+title: Format specifiers
+description: Detailed examples of each supported format specifier in ft_printf
+---
+
+## Character specifier (%c)
+
+The `%c` specifier prints a single character:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    ft_printf("Character: %c\n", 'Z');
+    ft_printf("ASCII: %c %c %c\n", 65, 66, 67);
+    return (0);
+}
+```
+
+**Output:**
+```
+Character: Z
+ASCII: A B C
+```
+
+You can pass either a `char` or an `int` value. The function prints the corresponding ASCII character.
+
+## String specifier (%s)
+
+The `%s` specifier prints a null-terminated string:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    char *str = "Hello, 42!";
+    
+    ft_printf("String: %s\n", str);
+    ft_printf("Multiple: %s %s\n", "First", "Second");
+    return (0);
+}
+```
+
+**Output:**
+```
+String: Hello, 42!
+Multiple: First Second
+```
+
+<Note>
+If you pass a NULL pointer with `%s`, ft_printf prints `(null)` instead of crashing. See the [advanced patterns](/examples/advanced-patterns) page for details.
+</Note>
+
+## Pointer specifier (%p)
+
+The `%p` specifier prints a pointer address in hexadecimal format with the `0x` prefix:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    int x = 42;
+    int *ptr = &x;
+    char *str = "test";
+    
+    ft_printf("Pointer address: %p\n", ptr);
+    ft_printf("String address: %p\n", str);
+    return (0);
+}
+```
+
+**Output:**
+```
+Pointer address: 0x7ffc8b4c6a1c
+String address: 0x5628a3f4c004
+```
+
+Actual addresses will vary between executions. NULL pointers are printed as `(nil)`.
+
+## Signed integer specifiers (%d and %i)
+
+Both `%d` and `%i` print signed decimal integers (they work identically):
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    ft_printf("Positive: %d\n", 42);
+    ft_printf("Negative: %i\n", -42);
+    ft_printf("Zero: %d\n", 0);
+    ft_printf("Max int: %d\n", 2147483647);
+    ft_printf("Min int: %i\n", -2147483648);
+    return (0);
+}
+```
+
+**Output:**
+```
+Positive: 42
+Negative: -42
+Zero: 0
+Max int: 2147483647
+Min int: -2147483648
+```
+
+Both specifiers handle the full range of signed 32-bit integers, including `INT_MIN` and `INT_MAX`.
+
+## Unsigned integer specifier (%u)
+
+The `%u` specifier prints unsigned decimal integers:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    unsigned int value = 42;
+    
+    ft_printf("Unsigned: %u\n", value);
+    ft_printf("Large: %u\n", 4294967295u);
+    ft_printf("Zero: %u\n", 0);
+    return (0);
+}
+```
+
+**Output:**
+```
+Unsigned: 42
+Large: 4294967295
+Zero: 0
+```
+
+The `%u` specifier handles values from 0 to `UINT_MAX` (4,294,967,295).
+
+## Lowercase hexadecimal specifier (%x)
+
+The `%x` specifier prints unsigned integers in lowercase hexadecimal format:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    ft_printf("Decimal 255 in hex: %x\n", 255);
+    ft_printf("Decimal 42 in hex: %x\n", 42);
+    ft_printf("Zero: %x\n", 0);
+    ft_printf("Large: %x\n", 3735928559u);
+    return (0);
+}
+```
+
+**Output:**
+```
+Decimal 255 in hex: ff
+Decimal 42 in hex: 2a
+Zero: 0
+Large: deadbeef
+```
+
+Hexadecimal letters (a-f) are printed in lowercase.
+
+## Uppercase hexadecimal specifier (%X)
+
+The `%X` specifier works like `%x` but prints hexadecimal letters in uppercase:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    ft_printf("Decimal 255 in hex: %X\n", 255);
+    ft_printf("Decimal 42 in hex: %X\n", 42);
+    ft_printf("Zero: %X\n", 0);
+    ft_printf("Large: %X\n", 3735928559u);
+    return (0);
+}
+```
+
+**Output:**
+```
+Decimal 255 in hex: FF
+Decimal 42 in hex: 2A
+Zero: 0
+Large: DEADBEEF
+```
+
+Hexadecimal letters (A-F) are printed in uppercase.
+
+## Percent sign specifier (%%)
+
+To print a literal percent sign, use `%%`:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    ft_printf("Progress: 100%%\n");
+    ft_printf("Discount: 25%% off\n");
+    ft_printf("%%s is a format specifier\n");
+    return (0);
+}
+```
+
+**Output:**
+```
+Progress: 100%
+Discount: 25% off
+%s is a format specifier
+```
+
+The `%%` sequence outputs a single `%` character and doesn't consume any arguments.

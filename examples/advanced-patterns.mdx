@@ -1,0 +1,253 @@
+---
+title: Advanced patterns
+description: Complex examples combining multiple specifiers and handling edge cases
+---
+
+## Combining multiple specifiers
+
+You can mix different format specifiers in complex format strings:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    char *name = "Alice";
+    int age = 25;
+    unsigned int id = 1337;
+    char status = 'A';
+    
+    ft_printf("User: %s (ID: %u)\n", name, id);
+    ft_printf("Age: %d, Status: %c\n", age, status);
+    ft_printf("%s is %d years old with ID %u and status %c\n", 
+              name, age, id, status);
+    return (0);
+}
+```
+
+**Output:**
+```
+User: Alice (ID: 1337)
+Age: 25, Status: A
+Alice is 25 years old with ID 1337 and status A
+```
+
+The arguments are matched with format specifiers from left to right.
+
+## Hexadecimal formatting patterns
+
+You can display the same value in different number bases:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    unsigned int value = 255;
+    
+    ft_printf("Decimal: %u\n", value);
+    ft_printf("Hex (lowercase): %x\n", value);
+    ft_printf("Hex (uppercase): %X\n", value);
+    ft_printf("All formats: %u = 0x%x = 0x%X\n", value, value, value);
+    return (0);
+}
+```
+
+**Output:**
+```
+Decimal: 255
+Hex (lowercase): ff
+Hex (uppercase): FF
+All formats: 255 = 0xff = 0xFF
+```
+
+This is useful for debugging and displaying numbers in different representations.
+
+## Handling NULL string pointers
+
+ft_printf safely handles NULL string pointers by printing `(null)`:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    char *valid = "Hello";
+    char *null_ptr = NULL;
+    
+    ft_printf("Valid string: %s\n", valid);
+    ft_printf("NULL pointer: %s\n", null_ptr);
+    ft_printf("Both: '%s' and '%s'\n", valid, null_ptr);
+    return (0);
+}
+```
+
+**Output:**
+```
+Valid string: Hello
+NULL pointer: (null)
+Both: 'Hello' and '(null)'
+```
+
+<Note>
+This safety feature prevents your program from crashing when passing NULL to `%s`, making debugging easier.
+</Note>
+
+## Handling NULL pointers with %p
+
+NULL pointers are displayed as `(nil)` instead of `0x0`:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    int x = 42;
+    int *valid_ptr = &x;
+    int *null_ptr = NULL;
+    
+    ft_printf("Valid pointer: %p\n", valid_ptr);
+    ft_printf("NULL pointer: %p\n", null_ptr);
+    ft_printf("Address of x: %p, null: %p\n", valid_ptr, null_ptr);
+    return (0);
+}
+```
+
+**Output:**
+```
+Valid pointer: 0x7ffd8c9a4e1c
+NULL pointer: (nil)
+Address of x: 0x7ffd8c9a4e1c, null: (nil)
+```
+
+Actual addresses will vary, but NULL pointers always print as `(nil)`.
+
+## Working with zero values
+
+ft_printf correctly handles zero values for all numeric types:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    ft_printf("Integer zero: %d\n", 0);
+    ft_printf("Unsigned zero: %u\n", 0);
+    ft_printf("Hex zero: %x\n", 0);
+    ft_printf("All zeros: %d %u %x %X\n", 0, 0, 0, 0);
+    return (0);
+}
+```
+
+**Output:**
+```
+Integer zero: 0
+Unsigned zero: 0
+Hex zero: 0
+All zeros: 0 0 0 0
+```
+
+Zero is always printed as a single `0` character, regardless of the format.
+
+## Handling minimum and maximum integer values
+
+ft_printf handles edge cases for integer ranges:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    int max_int = 2147483647;
+    int min_int = -2147483648;
+    unsigned int max_uint = 4294967295u;
+    
+    ft_printf("INT_MAX: %d\n", max_int);
+    ft_printf("INT_MIN: %d\n", min_int);
+    ft_printf("UINT_MAX: %u\n", max_uint);
+    ft_printf("UINT_MAX in hex: %x\n", max_uint);
+    return (0);
+}
+```
+
+**Output:**
+```
+INT_MAX: 2147483647
+INT_MIN: -2147483648
+UINT_MAX: 4294967295
+UINT_MAX in hex: ffffffff
+```
+
+The implementation handles `INT_MIN` specially to avoid overflow issues.
+
+## Using return values for validation
+
+You can use the return value to verify output length:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    int count;
+    char *msg = "Testing";
+    
+    count = ft_printf("%s\n", msg);
+    ft_printf("Expected: %d, Got: %d\n", 8, count);
+    
+    count = ft_printf("%d + %d = %d\n", 2, 2, 4);
+    ft_printf("That line was %d characters\n", count);
+    
+    // Empty format string
+    count = ft_printf("");
+    ft_printf("Empty string printed %d characters\n", count);
+    return (0);
+}
+```
+
+**Output:**
+```
+Testing
+Expected: 8, Got: 8
+2 + 2 = 4
+That line was 10 characters
+Empty string printed 0 characters
+```
+
+The return value is accurate for all format strings, including empty ones.
+
+## Complex formatting patterns
+
+Combining different specifiers for complex output:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    unsigned int addr = 0xDEADBEEF;
+    char *type = "pointer";
+    int offset = 16;
+    
+    ft_printf("Memory dump:\n");
+    ft_printf("  Type: %s\n", type);
+    ft_printf("  Address: 0x%X\n", addr);
+    ft_printf("  Offset: +%d bytes\n", offset);
+    ft_printf("  Lowercase: 0x%x\n", addr);
+    ft_printf("Summary: %s at 0x%X (+%d) = 0x%X\n", 
+              type, addr, offset, addr + offset);
+    return (0);
+}
+```
+
+**Output:**
+```
+Memory dump:
+  Type: pointer
+  Address: 0xDEADBEEF
+  Offset: +16 bytes
+  Lowercase: 0xdeadbeef
+Summary: pointer at 0xDEADBEEF (+16) = 0xDEADBEFF
+```
+
+This demonstrates how ft_printf can be used for formatted debug output and memory dumps.

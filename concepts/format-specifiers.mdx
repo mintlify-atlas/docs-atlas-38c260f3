@@ -1,0 +1,325 @@
+---
+title: Format specifiers
+description: Complete reference for all format specifiers supported by ft_printf
+---
+
+## Overview
+
+Format specifiers tell ft_printf how to interpret and format variadic arguments. Each specifier begins with a `%` character followed by a conversion character that determines the output format.
+
+## Supported specifiers
+
+The ft_printf implementation supports 9 format specifiers, matching a subset of the standard printf functionality:
+
+| Specifier | Type | Description |
+|-----------|------|-------------|
+| `%c` | Character | Prints a single character |
+| `%s` | String | Prints a null-terminated string |
+| `%p` | Pointer | Prints a pointer address in hexadecimal |
+| `%d` | Decimal | Prints a signed decimal integer |
+| `%i` | Integer | Prints a signed decimal integer (identical to %d) |
+| `%u` | Unsigned | Prints an unsigned decimal integer |
+| `%x` | Hex (lower) | Prints an unsigned hexadecimal (lowercase) |
+| `%X` | Hex (upper) | Prints an unsigned hexadecimal (uppercase) |
+| `%%` | Literal | Prints a literal percent sign |
+
+## Character: %c
+
+Prints a single character to stdout.
+
+**Implementation**: `ft_printf_putchar()` in ft_printf_str.c:15
+
+```c
+int ft_printf_putchar(int c)
+{
+    write(1, &c, 1);
+    return (1);
+}
+```
+
+**Usage:**
+```c
+ft_printf("Letter: %c\n", 'A');
+// Output: Letter: A
+
+ft_printf("%c%c%c\n", 'f', 't', '!');
+// Output: ft!
+```
+
+<Note>
+The parameter type is `int`, not `char`, due to C's default argument promotions in variadic functions. Characters are automatically promoted to int when passed through `va_arg()`.
+</Note>
+
+## String: %s
+
+Prints a null-terminated string to stdout.
+
+**Implementation**: `ft_printf_putstr()` in ft_printf_str.c:21
+
+```c
+int ft_printf_putstr(const char *s)
+{
+    int i;
+
+    i = 0;
+    if (s == NULL)
+        return (ft_printf_putstr("(null)"));
+    while (s[i] != '\0')
+    {
+        write(1, &s[i], 1);
+        i++;
+    }
+    return (i);
+}
+```
+
+**Usage:**
+```c
+ft_printf("Hello, %s!\n", "world");
+// Output: Hello, world!
+
+char *str = NULL;
+ft_printf("Value: %s\n", str);
+// Output: Value: (null)
+```
+
+<Warning>
+When passed a NULL pointer, ft_printf prints `(null)` instead of crashing. This matches the behavior of many standard printf implementations but is not guaranteed by the C standard.
+</Warning>
+
+## Pointer: %p
+
+Prints a pointer address in hexadecimal format with a `0x` prefix.
+
+**Implementation**: `ft_printf_ptr()` in ft_printf_ptr.c:18
+
+```c
+int ft_printf_ptr(unsigned long long nbr)
+{
+    int ret;
+
+    ret = 0;
+    if (nbr == 0)
+        ret += ft_printf_putstr("(nil)");
+    else
+    {
+        ret += ft_printf_putstr("0x");
+        ft_printf_splitptr(nbr);
+        ret += ft_printf_countptr(nbr);
+    }
+    return (ret);
+}
+```
+
+**Usage:**
+```c
+int x = 42;
+ft_printf("Address: %p\n", &x);
+// Output: Address: 0x7ffd5c8e3a4c (actual address varies)
+
+ft_printf("NULL pointer: %p\n", NULL);
+// Output: NULL pointer: (nil)
+```
+
+<Note>
+Null pointers (address 0) are printed as `(nil)` rather than `0x0`. The hexadecimal output uses lowercase letters (a-f).
+</Note>
+
+## Signed integers: %d and %i
+
+Both specifiers print signed decimal integers. They behave identically in ft_printf.
+
+**Implementation**: `ft_printf_nbr()` in ft_printf_nbr.c:15
+
+```c
+int ft_printf_nbr(int nbr)
+{
+    int ret;
+
+    ret = 0;
+    if (nbr == 0)
+        ret += ft_printf_putchar('0');
+    if (nbr == -2147483648)
+    {
+        ret += ft_printf_putstr("-2147483648");
+        return (ret);
+    }
+    if (nbr < 0)
+    {
+        ret += ft_printf_putchar('-');
+        nbr = -1 * nbr;
+    }
+    if (nbr > 0)
+        ret += ft_printf_unbr((unsigned int) nbr);
+    return (ret);
+}
+```
+
+**Usage:**
+```c
+ft_printf("Number: %d\n", 42);
+// Output: Number: 42
+
+ft_printf("Negative: %i\n", -273);
+// Output: Negative: -273
+
+ft_printf("Min int: %d\n", -2147483648);
+// Output: Min int: -2147483648
+```
+
+<Accordion title="Why special handling for -2147483648?">
+The value -2147483648 is the minimum value for a 32-bit signed integer (INT_MIN). When you negate this value using `-1 * nbr`, you get 2147483648, which exceeds INT_MAX (2147483647) and causes integer overflow.
+
+To avoid this issue, the implementation handles INT_MIN as a special case by printing it as a literal string rather than computing its absolute value.
+</Accordion>
+
+## Unsigned integer: %u
+
+Prints an unsigned decimal integer.
+
+**Implementation**: `ft_printf_unbr()` in ft_printf_nbr.c:37
+
+```c
+int ft_printf_unbr(unsigned int nbr)
+{
+    int ret;
+
+    ret = 0;
+    if (nbr == 0)
+        ret += ft_printf_putchar('0');
+    else
+    {
+        if ((nbr / 10) != 0)
+            ft_printf_unbr(nbr / 10);
+        ft_printf_putchar((nbr % 10) + '0');
+        while (nbr > 0)
+        {
+            nbr /= 10;
+            ret++;
+        }
+    }
+    return (ret);
+}
+```
+
+**Usage:**
+```c
+ft_printf("Unsigned: %u\n", 42);
+// Output: Unsigned: 42
+
+ft_printf("Max uint: %u\n", 4294967295U);
+// Output: Max uint: 4294967295
+
+// Careful with negative values cast to unsigned
+ft_printf("Cast: %u\n", (unsigned int)-1);
+// Output: Cast: 4294967295
+```
+
+<Warning>
+Passing a negative number to %u results in wraparound behavior. The value is reinterpreted as an unsigned integer, producing large positive values.
+</Warning>
+
+## Hexadecimal: %x and %X
+
+Prints an unsigned integer in hexadecimal format. Use `%x` for lowercase (a-f) or `%X` for uppercase (A-F).
+
+**Implementation**: `ft_printf_hex()` in ft_printf_hex.c:18
+
+```c
+int ft_printf_hex(unsigned int nbr, char type)
+{
+    int ret;
+
+    ret = 0;
+    if (nbr == 0)
+        ret += ft_printf_putchar('0');
+    else
+    {
+        ft_printf_splithex(nbr, type);
+        ret += ft_printf_counthex(nbr);
+    }
+    return (ret);
+}
+```
+
+The `type` parameter determines case:
+
+```c
+static void ft_printf_splithex(unsigned int nbr, char type)
+{
+    char chex;
+
+    chex = 'a';
+    if (type >= (int) 'A' && type <= (int) 'Z')
+        chex = 'A';
+    // ... conversion logic
+}
+```
+
+**Usage:**
+```c
+ft_printf("Lowercase: %x\n", 255);
+// Output: Lowercase: ff
+
+ft_printf("Uppercase: %X\n", 255);
+// Output: Uppercase: FF
+
+ft_printf("Color: #%x\n", 0xff5733);
+// Output: Color: #ff5733
+```
+
+<Note>
+Hexadecimal output does not include a `0x` prefix. If you need the prefix, include it manually in your format string: `"0x%x"`.
+</Note>
+
+## Literal percent: %%
+
+Prints a literal `%` character.
+
+**Implementation**: Handled directly in `ft_print_param()` in ft_printf.c:32
+
+```c
+else if ((param == '%'))
+    ret += ft_printf_putchar('%');
+```
+
+**Usage:**
+```c
+ft_printf("Progress: 50%%\n");
+// Output: Progress: 50%
+
+ft_printf("100%% complete\n");
+// Output: 100% complete
+```
+
+## Specifier processing
+
+All specifiers are processed by the `ft_print_param()` function, which dispatches to the appropriate handler based on the conversion character:
+
+```c
+int ft_print_param(va_list list, const char param)
+{
+    int ret;
+
+    ret = 0;
+    if (param == 'c')
+        ret += ft_printf_putchar(va_arg(list, int));
+    else if (param == 's')
+        ret += ft_printf_putstr(va_arg(list, char *));
+    else if ((param == 'd') || (param == 'i'))
+        ret += ft_printf_nbr(va_arg(list, int));
+    else if ((param == 'u'))
+        ret += ft_printf_unbr(va_arg(list, unsigned int));
+    else if ((param == 'x') || (param == 'X'))
+        ret += ft_printf_hex(va_arg(list, unsigned int), param);
+    else if ((param == 'p'))
+        ret += ft_printf_ptr(va_arg(list, unsigned long long));
+    else if ((param == '%'))
+        ret += ft_printf_putchar('%');
+    return (ret);
+}
+```
+
+<Warning>
+Unrecognized specifiers are silently ignored. For example, `ft_printf("%z", value)` will output nothing for that specifier and advance past it without consuming an argument, potentially causing misalignment with subsequent specifiers.
+</Warning>

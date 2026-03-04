@@ -1,0 +1,156 @@
+---
+title: Basic usage
+description: Simple examples to get started with ft_printf
+---
+
+## Your first ft_printf call
+
+The most basic use of ft_printf is printing a simple string:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    ft_printf("Hello, World!\n");
+    return (0);
+}
+```
+
+**Output:**
+```
+Hello, World!
+```
+
+The function works just like the standard `printf`, parsing the format string and printing it to standard output.
+
+## Printing strings
+
+You can print dynamic string content using the `%s` format specifier:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    char *name = "Alice";
+    
+    ft_printf("Hello, %s!\n", name);
+    ft_printf("Welcome to %s, %s.\n", "42 School", name);
+    return (0);
+}
+```
+
+**Output:**
+```
+Hello, Alice!
+Welcome to 42 School, Alice.
+```
+
+## Printing numbers
+
+You can print integers using `%d` or `%i` (both work identically):
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    int age = 25;
+    int temperature = -5;
+    
+    ft_printf("Age: %d years\n", age);
+    ft_printf("Temperature: %i degrees\n", temperature);
+    ft_printf("The answer is %d.\n", 42);
+    return (0);
+}
+```
+
+**Output:**
+```
+Age: 25 years
+Temperature: -5 degrees
+The answer is 42.
+```
+
+Both `%d` and `%i` handle positive numbers, negative numbers, and zero correctly.
+
+## Printing characters
+
+Use `%c` to print individual characters:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    char grade = 'A';
+    
+    ft_printf("Grade: %c\n", grade);
+    ft_printf("%c%c%c\n", 'X', 'Y', 'Z');
+    return (0);
+}
+```
+
+**Output:**
+```
+Grade: A
+XYZ
+```
+
+## Using the return value
+
+ft_printf returns the number of characters printed, which is useful for tracking output:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    int count;
+    
+    count = ft_printf("Hello\n");
+    ft_printf("Printed %d characters\n", count);
+    
+    count = ft_printf("Number: %d\n", 42);
+    ft_printf("That was %d characters\n", count);
+    return (0);
+}
+```
+
+**Output:**
+```
+Hello
+Printed 6 characters
+Number: 42
+That was 11 characters
+```
+
+The return value counts all characters printed, including newlines and converted values.
+
+## Mixing multiple specifiers
+
+You can combine different format specifiers in a single call:
+
+```c
+#include "ft_printf.h"
+
+int main(void)
+{
+    char *name = "Bob";
+    int score = 95;
+    char grade = 'A';
+    
+    ft_printf("%s scored %d points and got an %c\n", name, score, grade);
+    return (0);
+}
+```
+
+**Output:**
+```
+Bob scored 95 points and got an A
+```
+
+<Note>
+ft_printf processes format specifiers from left to right, so make sure your arguments match the order of the specifiers in the format string.
+</Note>
