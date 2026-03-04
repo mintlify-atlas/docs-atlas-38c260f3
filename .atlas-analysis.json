@@ -1,0 +1,69 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "ft_printf",
+  "projectDescription": "A custom implementation of printf for the 42 School curriculum that supports formatted output with various conversion specifiers",
+  "theme": "linden",
+  "primaryColor": "#0066CC",
+  "lightColor": "#3399FF",
+  "darkColor": "#004499",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Core Concepts",
+        "pages": [
+          "concepts/architecture",
+          "concepts/format-specifiers",
+          "concepts/return-values"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api/ft_printf",
+          "api/conversion-functions",
+          "api/helper-functions"
+        ]
+      },
+      {
+        "group": "Examples",
+        "pages": [
+          "examples/basic-usage",
+          "examples/format-specifiers",
+          "examples/advanced-patterns"
+        ]
+      },
+      {
+        "group": "Development",
+        "pages": [
+          "development/building",
+          "development/testing",
+          "development/contributing"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Custom printf implementation in C",
+    "Support for c, s, p, d, i, u, x, X, % format specifiers",
+    "Compatible with 42 School Norminette standards",
+    "Static library compilation with Makefile",
+    "Returns printed character count like standard printf"
+  ],
+  "publicApiSurface": [
+    "ft_printf(const char *format, ...)",
+    "ft_printf_putchar(int c)",
+    "ft_printf_putstr(const char *s)",
+    "ft_printf_nbr(int nbr)",
+    "ft_printf_unbr(unsigned int nbr)",
+    "ft_printf_hex(unsigned int nbr, char type)",
+    "ft_printf_ptr(unsigned long long nbr)"
+  ]
+}
